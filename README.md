@@ -19,7 +19,17 @@ Collection extensions for Objective-C. (ARC environment)
 * Test
   * Expecta (~> 1.0)
 
-## How to try / Test
+## How to try
+
+### Use in project with Cocoapods
+
+Add following one line to your `Podfile` .
+
+```ruby
+pod 'CocoaFn', :git => 'https://github.com/kmhjs/CocoaFn.git', :branch => 'develop'
+```
+
+### Run project for test / development
 
 1. `bundle install --path=./bundle/install`
 2. `bundle exec pod install`

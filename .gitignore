@@ -59,6 +59,10 @@ fastlane/screenshots
 
 iOSInjectionProject/
 
+# RubyGems
+bundle/
+.bundle/
+
 ### OSX ###
 *.DS_Store
 .AppleDouble

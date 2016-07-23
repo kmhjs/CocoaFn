@@ -8,6 +8,8 @@
 
 #import "NSArray+Fn.h"
 
+NS_ASSUME_NONNULL_BEGIN
+
 @implementation NSArray (Fn)
 
 - (void)each:(void (^)(id))fn
@@ -60,3 +62,5 @@
 }
 
 @end
+
+NS_ASSUME_NONNULL_END

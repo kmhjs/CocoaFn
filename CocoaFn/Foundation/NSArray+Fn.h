@@ -8,6 +8,8 @@
 
 #import <Foundation/Foundation.h>
 
+NS_ASSUME_NONNULL_BEGIN
+
 @interface NSArray<__covariant ObjectType> (Fn)
 
 - (void)each:(void (^)(ObjectType element))fn;
@@ -17,3 +19,5 @@
 - (NSArray<ObjectType> *)reject:(BOOL (^)(ObjectType element))fn;
 
 @end
+
+NS_ASSUME_NONNULL_END

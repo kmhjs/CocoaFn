@@ -8,6 +8,8 @@
 
 #import "NSDictionary+Fn.h"
 
+NS_ASSUME_NONNULL_BEGIN
+
 @implementation NSDictionary (Fn)
 
 - (void)each:(void (^)(id key, id value))fn
@@ -60,3 +62,5 @@
 }
 
 @end
+
+NS_ASSUME_NONNULL_END

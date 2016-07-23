@@ -8,6 +8,8 @@
 
 #import <Foundation/Foundation.h>
 
+NS_ASSUME_NONNULL_BEGIN
+
 @interface NSDictionary<__covariant KeyType, __covariant ObjectType> (Fn)
 
 - (void)each:(void (^)(KeyType key, ObjectType value))fn;
@@ -17,3 +19,5 @@
 - (NSDictionary<KeyType, ObjectType> *)reject:(BOOL (^)(KeyType key, ObjectType value))fn;
 
 @end
+
+NS_ASSUME_NONNULL_END

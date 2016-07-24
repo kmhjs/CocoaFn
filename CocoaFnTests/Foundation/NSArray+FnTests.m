@@ -12,89 +12,89 @@
 
 @interface NSArray_FnTests : XCTestCase
 
+@property (nonatomic, copy) NSArray<NSString *> *stringTestSet;
+@property (nonatomic, copy) NSArray<NSNumber *> *numberTestSet;
+
 @end
 
 @implementation NSArray_FnTests
 
 - (void)setUp {
-    [super setUp];
-    // Put setup code here. This method is called before the invocation of each test method in the class.
+  [super setUp];
+  // Put setup code here. This method is called before the invocation of each test method in the class.
+
+  self.stringTestSet = @[@"a", @"b", @"c"];
+  self.numberTestSet = @[@(1), @(2), @(3), @(4), @(5)];
 }
 
 - (void)tearDown {
-    // Put teardown code here. This method is called after the invocation of each test method in the class.
-    [super tearDown];
+  // Put teardown code here. This method is called after the invocation of each test method in the class.
+  [super tearDown];
 }
 
 - (void)testEach 
 {
-  NSArray<NSString *> *arr = @[@"a", @"b", @"c"];
   __block NSMutableArray *result = [NSMutableArray arrayWithCapacity:0];
 
-  [arr each:^(NSString *element) {
+  [self.stringTestSet each:^(NSString *element) {
     [result addObject:element];
   }];
 
   /**
    *  Checks content length
    */
-  expect([result count]).to.equal([arr count]);
+  expect([result count]).to.equal([self.stringTestSet count]);
 
   /**
    *  Checks actual contents
    */
-  expect(result).to.equal(arr);
+  expect(result).to.equal(self.stringTestSet);
 }
 
 - (void)testMap
 {
-  NSArray<NSString *> *arr = @[@"a", @"b", @"c"];
-
-  NSArray<NSString *> *result = [arr map:^id(id element) {
+  NSArray<NSString *> *result = [self.stringTestSet map:^id(id element) {
     return [NSString stringWithFormat:@"element = %@", (NSString *)element];
   }];
 
   /**
    *  Checks content length
    */
-  expect([result count]).to.equal([arr count]);
+  expect([result count]).to.equal([self.stringTestSet count]);
 
   /**
    *  Checks contents
    */
-  for (NSString *str in arr) {
-    NSString *expected = [NSString stringWithFormat:@"element = %@", str];
-    expect(result).to.contain(expected);
-  }
+  [self.stringTestSet enumerateObjectsWithOptions:NSEnumerationConcurrent
+                                       usingBlock:^(NSString * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+                                         NSString *expected = [NSString stringWithFormat:@"element = %@", obj];
+                                         expect(result).to.contain(expected);
+                                       }];
 }
 
 - (void)testReduceNumber
 {
-  NSArray<NSNumber *> *arr = @[@(1), @(2.0), @(3)];
-
-  NSNumber *result = [arr reduce:@(0)
-                              fn:^id(NSNumber *accumlator, NSNumber *element) {
-                                return @([accumlator floatValue] + [element floatValue]);
-                              }];
+  NSNumber *result = [self.numberTestSet reduce:@(0)
+                                             fn:^id(NSNumber *accumlator, NSNumber *element) {
+                                               return @([accumlator floatValue] + [element floatValue]);
+                                             }];
 
   /**
    *  Checks content
    */
-  expect([result floatValue]).to.equal(6.0);
+  expect([result floatValue]).to.equal(15.0);
 }
 
 - (void)testReduceString
 {
-  NSArray<NSString *> *arr = @[@"a", @"b", @"c"];
+  NSString *result = [self.stringTestSet reduce:@""
+                                             fn:^id(NSString *accumlator, NSString *element) {
+                                               if (accumlator.length < 1) {
+                                                 return element;
+                                               }
 
-  NSString *result = [arr reduce:@""
-                              fn:^id(NSString *accumlator, NSString *element) {
-                                if (accumlator.length < 1) {
-                                  return element;
-                                }
-
-                                return [NSString stringWithFormat:@"%@, %@", accumlator, element];
-                              }];
+                                               return [NSString stringWithFormat:@"%@, %@", accumlator, element];
+                                             }];
 
   /**
    *  Checks content
@@ -104,9 +104,7 @@
 
 - (void)testSelect
 {
-  NSArray<NSNumber *> *arr = @[@(1), @(2), @(3), @(4), @(5)];
-
-  NSArray<NSNumber *> *result = [arr select:^BOOL(NSNumber *element) {
+  NSArray<NSNumber *> *result = [self.numberTestSet select:^BOOL(NSNumber *element) {
     return [element floatValue] > 3;
   }];
 
@@ -119,16 +117,12 @@
   /**
    *  Checks contents
    */
-  for (NSNumber *num in @[@(4), @(5)]) {
-    expect(result).to.contain(num);
-  }
+  expect(result).to.equal(@[@(4), @(5)]);
 }
 
 - (void)testReject
 {
-  NSArray<NSNumber *> *arr = @[@(1), @(2), @(3), @(4), @(5)];
-
-  NSArray<NSNumber *> *result = [arr reject:^BOOL(NSNumber *element) {
+  NSArray<NSNumber *> *result = [self.numberTestSet reject:^BOOL(NSNumber *element) {
     return [element floatValue] <= 3;
   }];
 
@@ -141,9 +135,7 @@
   /**
    *  Checks contents
    */
-  for (NSNumber *num in @[@(4), @(5)]) {
-    expect(result).to.contain(num);
-  }
+  expect(result).to.equal(@[@(4), @(5)]);
 }
 
 @end

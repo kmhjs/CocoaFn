@@ -21,73 +21,76 @@
 
 @interface NSDictionary_FnTests : XCTestCase
 
+@property (nonatomic, copy) NSDictionary<NSString *, NSString *> *stringTestSet;
+@property (nonatomic, copy) NSDictionary<NSString *, NSNumber *> *numberTestSet;
+
 @end
 
 @implementation NSDictionary_FnTests
 
 - (void)setUp {
-    [super setUp];
-    // Put setup code here. This method is called before the invocation of each test method in the class.
+  [super setUp];
+  // Put setup code here. This method is called before the invocation of each test method in the class.
+
+  self.stringTestSet = @{ @"1" : @"a", @"2" : @"b", @"3" : @"c" };
+  self.numberTestSet = @{ @"a" : @(1), @"b" : @(2), @"c" : @(3) };
 }
 
 - (void)tearDown {
-    // Put teardown code here. This method is called after the invocation of each test method in the class.
-    [super tearDown];
+  // Put teardown code here. This method is called after the invocation of each test method in the class.
+  [super tearDown];
 }
 
 - (void)testEach
 {
-  NSDictionary<NSString *, NSNumber *> *dict = @{ @"a" : @(1), @"b" : @(2), @"c" : @(3) };
   __block NSMutableDictionary<NSString *, NSNumber *> *result = [NSMutableDictionary dictionaryWithCapacity:0];
 
-  [dict each:^(NSString *key, NSNumber *value) {
+  [self.numberTestSet each:^(NSString *key, NSNumber *value) {
     [result setObject:value forKey:key];
   }];
 
   /**
    *  Checks content length
    */
-  expect([result count]).to.equal([dict count]);
+  expect([result count]).to.equal([self.numberTestSet count]);
 
   /**
    *  Checks actual contents
    */
-  expect(result).to.equal(dict);
+  expect(result).to.beSupersetOf(self.numberTestSet);
+  expect(self.numberTestSet).to.beSupersetOf(result);
 }
 
 - (void)testMap
 {
-  NSDictionary<NSString *, NSNumber *> *dict = @{ @"a" : @(1), @"b" : @(2), @"c" : @(3) };
-
-  NSDictionary<NSString *, NSString *> *result = [dict map:^NSString *(NSString *key, NSNumber *value) {
+  NSDictionary<NSString *, NSString *> *result = [self.numberTestSet map:^NSString *(NSString *key, NSNumber *value) {
     return [NSString stringWithFormat:@"%@ = %@", key, value];
   }];
 
   /**
    *  Checks content length
    */
-  expect([result count]).to.equal([dict count]);
+  expect([result count]).to.equal([self.numberTestSet count]);
 
   /**
    *  Checks contents
    */
-  [dict enumerateKeysAndObjectsUsingBlock:^(NSString * _Nonnull key, NSNumber * _Nonnull obj, BOOL * _Nonnull stop) {
-    // Contains key
-    expect([result hasKey:key]).to.beTruthy;
+  [self.numberTestSet enumerateKeysAndObjectsWithOptions:NSEnumerationConcurrent
+                                              usingBlock:^(NSString * _Nonnull key, NSNumber * _Nonnull obj, BOOL * _Nonnull stop) {
+                                                // Contains key
+                                                expect([result hasKey:key]).to.beTruthy;
 
-    // Contains expected element
-    expect(result[key]).to.equal([NSString stringWithFormat:@"%@ = %@", key, obj]);
-  }];
+                                                // Contains expected element
+                                                expect(result[key]).to.equal([NSString stringWithFormat:@"%@ = %@", key, obj]);
+                                              }];
 }
 
 - (void)testReduceNumber
 {
-  NSDictionary<NSString *, NSNumber *> *dict = @{ @"a" : @(1), @"b" : @(2), @"c" : @(3) };
-
-  NSNumber *result = [dict reduce:@(0)
-                               fn:^NSNumber *(NSNumber *accumlator, NSString *key, NSNumber *value) {
-                                 return @([accumlator floatValue] + [value floatValue]);
-                               }];
+  NSNumber *result = [self.numberTestSet reduce:@(0)
+                                             fn:^NSNumber *(NSNumber *accumlator, NSString *key, NSNumber *value) {
+                                               return @([accumlator floatValue] + [value floatValue]);
+                                             }];
 
   /**
    *  Checks content
@@ -97,16 +100,14 @@
 
 - (void)testReduceString
 {
-  NSDictionary<NSString *, NSString *> *dict = @{ @"1" : @"a", @"2" : @"b", @"3" : @"c" };
+  NSString *result = [self.stringTestSet reduce:@""
+                                             fn:^NSString *(NSString *accumlator, NSString *key, NSString *value) {
+                                               if (accumlator.length < 1) {
+                                                 return value;
+                                               }
 
-  NSString *result = [dict reduce:@""
-                               fn:^NSString *(NSString *accumlator, NSString *key, NSString *value) {
-                                 if (accumlator.length < 1) {
-                                   return value;
-                                 }
-
-                                 return [NSString stringWithFormat:@"%@, %@", accumlator, value];
-                               }];
+                                               return [NSString stringWithFormat:@"%@, %@", accumlator, value];
+                                             }];
   /**
    *  Checks content
    */
@@ -115,9 +116,7 @@
 
 - (void)testSelect
 {
-  NSDictionary<NSString *, NSString *> *dict = @{ @"1" : @"a", @"2" : @"b", @"3" : @"c" };
-
-  NSDictionary<NSString *, NSString *> *result = [dict select:^BOOL(NSString *key, NSString *value) {
+  NSDictionary<NSString *, NSString *> *result = [self.stringTestSet select:^BOOL(NSString *key, NSString *value) {
     return [key isEqualToString:@"2"];
   }];
 
@@ -136,9 +135,7 @@
 
 - (void)testReject
 {
-  NSDictionary<NSString *, NSString *> *dict = @{ @"1" : @"a", @"2" : @"b", @"3" : @"c" };
-
-  NSDictionary<NSString *, NSString *> *result = [dict reject:^BOOL(NSString *key, NSString *value) {
+  NSDictionary<NSString *, NSString *> *result = [self.stringTestSet reject:^BOOL(NSString *key, NSString *value) {
     return ![key isEqualToString:@"2"];
   }];
 

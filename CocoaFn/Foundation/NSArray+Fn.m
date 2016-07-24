@@ -12,14 +12,14 @@ NS_ASSUME_NONNULL_BEGIN
 
 @implementation NSArray (Fn)
 
-- (void)each:(void (^)(id))fn
+- (void)each:(ArrayVoidFnBlock)fn
 {
   [self enumerateObjectsUsingBlock:^(id _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
     fn(obj);
   }];
 }
 
-- (NSArray *)map:(id (^)(id))fn
+- (NSArray *)map:(ArrayIdFnBlock)fn
 {
   __block NSMutableArray *arr = [NSMutableArray arrayWithCapacity:0];
 
@@ -30,7 +30,7 @@ NS_ASSUME_NONNULL_BEGIN
   return [arr copy];
 }
 
-- (id)reduce:(id)initial fn:(id (^)(id, id))fn
+- (id)reduce:(id)initial fn:(ArrayReduceFnBlock)fn
 {
   __block id current = initial;
 
@@ -41,7 +41,7 @@ NS_ASSUME_NONNULL_BEGIN
   return current;
 }
 
-- (NSArray *)select:(BOOL (^)(id element))fn
+- (NSArray *)select:(ArrayBoolFnBlock)fn
 {
   __block NSMutableArray *arr = [NSMutableArray arrayWithCapacity:0];
 
@@ -54,11 +54,48 @@ NS_ASSUME_NONNULL_BEGIN
   return [arr copy];
 }
 
-- (NSArray *)reject:(BOOL (^)(id element))fn
+- (NSArray *)reject:(ArrayBoolFnBlock)fn
 {
   return [self select:^BOOL(id element) {
     return !fn(element);
   }];
+}
+
+#pragma mark - Property based access
+
+- (void (^)(ArrayVoidFnBlock))each
+{
+  return ^(ArrayVoidFnBlock fn) {
+    return [self each:fn];
+  };
+}
+
+- (NSArray *(^)(ArrayIdFnBlock))map
+{
+  return ^NSArray *(ArrayIdFnBlock fn) {
+    return [self map:fn];
+  };
+}
+
+- (id (^)(id, ArrayReduceFnBlock))reduce
+{
+  return ^id(id initial, ArrayReduceFnBlock fn) {
+    return [self reduce:initial fn:fn];
+  };
+}
+
+- (NSArray<id> *(^)(ArrayBoolFnBlock))select
+{
+  return ^NSArray *(ArrayBoolFnBlock fn) {
+    return [self select:fn];
+  };
+}
+
+- (NSArray<id> *(^)(ArrayBoolFnBlock))reject
+{
+  return ^NSArray *(ArrayBoolFnBlock fn) {
+    return [self reject:fn];
+  };
 }
 
 @end

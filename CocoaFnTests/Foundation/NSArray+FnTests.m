@@ -32,14 +32,10 @@
   [super tearDown];
 }
 
-- (void)testEach 
+#pragma mark - Each
+
+- (void)eachTestBase:(NSArray<NSString *> *)result
 {
-  __block NSMutableArray *result = [NSMutableArray arrayWithCapacity:0];
-
-  [self.stringTestSet each:^(NSString *element) {
-    [result addObject:element];
-  }];
-
   /**
    *  Checks content length
    */
@@ -51,12 +47,32 @@
   expect(result).to.equal(self.stringTestSet);
 }
 
-- (void)testMap
+- (void)testEach
 {
-  NSArray<NSString *> *result = [self.stringTestSet map:^id(id element) {
-    return [NSString stringWithFormat:@"element = %@", (NSString *)element];
+  __block NSMutableArray<NSString *> *result = [NSMutableArray arrayWithCapacity:0];
+
+  [self.stringTestSet each:^(NSString *element) {
+    [result addObject:element];
   }];
 
+  [self eachTestBase:[result copy]];
+}
+
+- (void)testPropertyBasedEach
+{
+  __block NSMutableArray<NSString *> *result = [NSMutableArray arrayWithCapacity:0];
+
+  self.stringTestSet.each(^(NSString *element) {
+    [result addObject:element];
+  });
+
+  [self eachTestBase:result];
+}
+
+#pragma mark - Map
+
+- (void)mapTestBase:(NSArray<NSString *> *)result
+{
   /**
    *  Checks content length
    */
@@ -72,42 +88,111 @@
                                        }];
 }
 
-- (void)testReduceNumber
+- (void)testMap
 {
-  NSNumber *result = [self.numberTestSet reduce:@(0)
-                                             fn:^id(NSNumber *accumlator, NSNumber *element) {
-                                               return @([accumlator floatValue] + [element floatValue]);
-                                             }];
+  [self mapTestBase:[self.stringTestSet map:^id(id element) {
+    return [NSString stringWithFormat:@"element = %@", (NSString *)element];
+  }]];
+}
 
+- (void)testPropertyBasedMap
+{
+  [self mapTestBase:self.stringTestSet.map(^id(id element) {
+    return [NSString stringWithFormat:@"element = %@", (NSString *)element];
+  })];
+}
+
+#pragma mark - Reduce
+
+- (void)reduceNumberTestBase:(NSNumber *)result
+{
   /**
    *  Checks content
    */
   expect([result floatValue]).to.equal(15.0);
 }
 
-- (void)testReduceString
+- (void)testReduceNumber
 {
-  NSString *result = [self.stringTestSet reduce:@""
-                                             fn:^id(NSString *accumlator, NSString *element) {
-                                               if (accumlator.length < 1) {
-                                                 return element;
-                                               }
+  [self reduceNumberTestBase:[self.numberTestSet reduce:@(0)
+                                                     fn:^id(NSNumber *accumlator, NSNumber *element) {
+                                                       return @([accumlator floatValue] + [element floatValue]);
+                                                     }]];
+}
 
-                                               return [NSString stringWithFormat:@"%@, %@", accumlator, element];
-                                             }];
+- (void)testPropertyBasedReduceNumber
+{
+  [self reduceNumberTestBase:self.numberTestSet.reduce(@(0), ^id(NSNumber * accumlator, id element) {
+    return @([accumlator floatValue] + [element floatValue]);
+  })];
+}
 
+
+- (void)reduceStringTestBase:(NSString *)result
+{
   /**
    *  Checks content
    */
   expect(result).to.equal(@"a, b, c");
 }
 
+- (void)testReduceString
+{
+  [self reduceStringTestBase:[self.stringTestSet reduce:@""
+                                                     fn:^id(NSString *accumlator, NSString *element) {
+                                                       if (accumlator.length < 1) {
+                                                         return element;
+                                                       }
+
+                                                       return [NSString stringWithFormat:@"%@, %@", accumlator, element];
+                                                     }]];
+}
+
+- (void)testPropertyBasedReduceString
+{
+  [self reduceStringTestBase:self.stringTestSet.reduce(@"", ^id(NSString *accumlator, NSString *element) {
+    if (accumlator.length < 1) {
+      return element;
+    }
+
+    return [NSString stringWithFormat:@"%@, %@", accumlator, element];
+  })];
+}
+
+#pragma mark - Select
+
+- (void)selectTestBase:(NSArray<NSNumber *> *)result
+{
+  /**
+   *  Checks content length
+   *  In this case, 4, 5 should be in the array
+   */
+  expect([result count]).to.equal(2);
+
+  /**
+   *  Checks contents
+   */
+  expect(result).to.equal(@[@(4), @(5)]);
+}
+
 - (void)testSelect
 {
-  NSArray<NSNumber *> *result = [self.numberTestSet select:^BOOL(NSNumber *element) {
+  [self selectTestBase:[self.numberTestSet select:^BOOL(NSNumber *element) {
     return [element floatValue] > 3;
-  }];
+  }]];
+}
 
+- (void)testPropertyBasedSelect
+{
+  [self selectTestBase:self.numberTestSet.select(^BOOL(NSNumber *element) {
+    return [element floatValue] > 3;
+  })];
+}
+
+#pragma mark - Reject
+
+- (void)rejectTestBase:(NSArray<NSNumber *> *)result
+{
   /**
    *  Checks content length
    *  In this case, 4, 5 should be in the array
@@ -122,20 +207,54 @@
 
 - (void)testReject
 {
-  NSArray<NSNumber *> *result = [self.numberTestSet reject:^BOOL(NSNumber *element) {
+  [self rejectTestBase:[self.numberTestSet reject:^BOOL(NSNumber *element) {
     return [element floatValue] <= 3;
-  }];
+  }]];
+}
 
+- (void)testPropertyBasedReject
+{
+  [self rejectTestBase:self.numberTestSet.reject(^BOOL(NSNumber *element) {
+    return [element floatValue] <= 3;
+  })];
+}
+
+#pragma mark - Combination
+
+- (void)mapSelectTestBase:(NSArray<NSNumber *> *)result
+{
   /**
    *  Checks content length
-   *  In this case, 4, 5 should be in the array
+   *  In this case, 40, 50 should be in the array
    */
   expect([result count]).to.equal(2);
 
   /**
    *  Checks contents
    */
-  expect(result).to.equal(@[@(4), @(5)]);
+  expect(result).to.equal(@[@(40), @(50)]);
+}
+
+- (void)testMapSelect
+{
+  [self mapSelectTestBase:[[self.numberTestSet map:^id _Nonnull(NSNumber * _Nonnull element) {
+    return @([element floatValue] * 10);
+
+  }] select:^BOOL(id  _Nonnull element) {
+    return [element floatValue] > 30;
+
+  }]];
+}
+
+- (void)testPropertyBasedMapSelect
+{
+  [self mapSelectTestBase:self.numberTestSet.map(^id _Nonnull(NSNumber * _Nonnull element) {
+    return @([element floatValue] * 10);
+
+  }).select(^BOOL(id  _Nonnull element) {
+    return [element floatValue] > 30;
+
+  })];
 }
 
 @end

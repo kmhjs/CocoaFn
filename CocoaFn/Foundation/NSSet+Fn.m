@@ -61,6 +61,43 @@ NS_ASSUME_NONNULL_BEGIN
   }];
 }
 
+#pragma mark - Property based access
+
+- (void (^)(SetVoidFnBlock))each
+{
+  return ^(SetVoidFnBlock fn) {
+    return [self each:fn];
+  };
+}
+
+- (NSSet *(^)(SetIdFnBlock))map
+{
+  return ^NSSet *(SetIdFnBlock fn) {
+    return [self map:fn];
+  };
+}
+
+- (id (^)(id, SetReduceFnBlock))reduce
+{
+  return ^id(id initial, SetReduceFnBlock fn) {
+    return [self reduce:initial fn:fn];
+  };
+}
+
+- (NSSet<id> *(^)(SetBoolFnBlock))select
+{
+  return ^NSSet *(SetBoolFnBlock fn) {
+    return [self select:fn];
+  };
+}
+
+- (NSSet<id> *(^)(SetBoolFnBlock))reject
+{
+  return ^NSSet *(SetBoolFnBlock fn) {
+    return [self reject:fn];
+  };
+}
+
 @end
 
 NS_ASSUME_NONNULL_END

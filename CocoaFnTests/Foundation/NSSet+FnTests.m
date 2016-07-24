@@ -32,14 +32,10 @@
   [super tearDown];
 }
 
-- (void)testEach
+#pragma mark - Each
+
+- (void)eachTestBase:(NSSet<NSString *> *)result
 {
-  __block NSMutableSet<NSString *> *result = [NSMutableSet setWithCapacity:0];
-
-  [self.stringTestSet each:^(NSString * _Nonnull element) {
-    [result addObject:element];
-  }];
-
   /**
    *  Checks content length
    */
@@ -52,12 +48,32 @@
   expect(self.stringTestSet).to.beSupersetOf(result);
 }
 
-- (void)testMap
+- (void)testEach
 {
-  __block NSSet<NSString *> *result = [self.stringTestSet map:^NSString * _Nonnull(NSString *  _Nonnull element) {
-    return [NSString stringWithFormat:@"element = %@", (NSString *)element];
+  __block NSMutableSet<NSString *> *result = [NSMutableSet setWithCapacity:0];
+
+  [self.stringTestSet each:^(NSString * _Nonnull element) {
+    [result addObject:element];
   }];
 
+  [self eachTestBase:result];
+}
+
+- (void)testPropertyBasedEach
+{
+  __block NSMutableSet<NSString *> *result = [NSMutableSet setWithCapacity:0];
+
+  self.stringTestSet.each(^(NSString * _Nonnull element) {
+    [result addObject:element];
+  });
+
+  [self eachTestBase:result];
+}
+
+#pragma mark - Map
+
+- (void)mapTestBase:(NSSet<NSString *> *)result
+{
   /**
    *  Checks content length
    */
@@ -67,48 +83,118 @@
    *  Checks contents
    */
   [self.stringTestSet enumerateObjectsWithOptions:NSEnumerationConcurrent
-                                 usingBlock:^(NSString *  _Nonnull obj, BOOL * _Nonnull stop) {
-                                   NSString *expected = [NSString stringWithFormat:@"element = %@", obj];
-                                   expect(result).to.contain(expected);
-                                 }];
+                                       usingBlock:^(NSString *  _Nonnull obj, BOOL * _Nonnull stop) {
+                                         NSString *expected = [NSString stringWithFormat:@"element = %@", obj];
+                                         expect(result).to.contain(expected);
+                                       }];
 }
 
-- (void)testReduceNumber
+- (void)testMap
 {
-  NSNumber *result = [self.numberTestSet reduce:@(0)
-                                             fn:^id(NSNumber *accumlator, NSNumber *element) {
-                                               return @([accumlator floatValue] + [element floatValue]);
-                                             }];
+  [self mapTestBase:[self.stringTestSet map:^NSString * _Nonnull(NSString *  _Nonnull element) {
+    return [NSString stringWithFormat:@"element = %@", (NSString *)element];
+  }]];
+}
 
+- (void)testPropertyBasedMap
+{
+  [self mapTestBase:self.stringTestSet.map(^NSString * _Nonnull(NSString *  _Nonnull element) {
+    return [NSString stringWithFormat:@"element = %@", (NSString *)element];
+  })];
+}
+
+#pragma mark - Reduce
+
+- (void)reduceNumberTestBase:(NSNumber *)result
+{
   /**
    *  Checks content
    */
   expect([result floatValue]).to.equal(15.0);
 }
 
-- (void)testReduceString
+- (void)testReduceNumber
 {
-  NSString *result = [self.stringTestSet reduce:@""
-                                             fn:^id(NSString *accumlator, NSString *element) {
-                                               if (accumlator.length < 1) {
-                                                 return element;
-                                               }
+  [self reduceNumberTestBase:[self.numberTestSet reduce:@(0)
+                                                     fn:^id(NSNumber *accumlator, NSNumber *element) {
+                                                       return @([accumlator floatValue] + [element floatValue]);
+                                                     }]];
+}
 
-                                               return [NSString stringWithFormat:@"%@, %@", accumlator, element];
-                                             }];
+- (void)testPropertyBasedReduceNumber
+{
+  [self reduceNumberTestBase:self.numberTestSet.reduce(@(0), ^id(NSNumber *accumlator, NSNumber *element) {
+    return @([accumlator floatValue] + [element floatValue]);
+  })];
+}
 
+- (void)reduceStringTestBase:(NSString *)result
+{
   /**
    *  Checks content
    */
   expect(result).to.equal(@"a, b, c");
 }
 
+- (void)testReduceString
+{
+  [self reduceStringTestBase:[self.stringTestSet reduce:@""
+                                                     fn:^id(NSString *accumlator, NSString *element) {
+                                                       if (accumlator.length < 1) {
+                                                         return element;
+                                                       }
+
+                                                       return [NSString stringWithFormat:@"%@, %@", accumlator, element];
+                                                     }]];
+}
+
+- (void)testPropertyBasedReduceString
+{
+  [self reduceStringTestBase:self.stringTestSet.reduce(@"", ^id(NSString *accumlator, NSString *element) {
+    if (accumlator.length < 1) {
+      return element;
+    }
+
+    return [NSString stringWithFormat:@"%@, %@", accumlator, element];
+  })];
+}
+
+#pragma mark - Select
+
+- (void)selectTestBase:(NSSet<NSNumber *> *)result
+{
+  /**
+   *  Checks content length
+   *  In this case, 4, 5 should be in the array
+   */
+  expect([result count]).to.equal(2);
+
+  /**
+   *  Checks contents
+   */
+  NSSet<NSNumber *> *expected = [NSSet setWithObjects:@(4), @(5), nil];
+  expect(result).to.beSupersetOf(expected);
+  expect(expected).to.beSupersetOf(result);
+}
+
 - (void)testSelect
 {
-  NSSet<NSNumber *> *result = [self.numberTestSet select:^BOOL(NSNumber *element) {
+  [self selectTestBase:[self.numberTestSet select:^BOOL(NSNumber *element) {
     return [element floatValue] > 3;
-  }];
+  }]];
+}
 
+- (void)testPropertyBasedSelect
+{
+  [self selectTestBase:self.numberTestSet.select(^BOOL(NSNumber *element) {
+    return [element floatValue] > 3;
+  })];
+}
+
+#pragma mark - Reject
+
+- (void)rejectTestBase:(NSSet<NSNumber *> *)result
+{
   /**
    *  Checks content length
    *  In this case, 4, 5 should be in the array
@@ -125,22 +211,16 @@
 
 - (void)testReject
 {
-  NSSet<NSNumber *> *result = [self.numberTestSet reject:^BOOL(NSNumber *element) {
+  [self rejectTestBase:[self.numberTestSet reject:^BOOL(NSNumber *element) {
     return [element floatValue] <= 3;
-  }];
+  }]];
+}
 
-  /**
-   *  Checks content length
-   *  In this case, 4, 5 should be in the array
-   */
-  expect([result count]).to.equal(2);
-
-  /**
-   *  Checks contents
-   */
-  NSSet<NSNumber *> *expected = [NSSet setWithObjects:@(4), @(5), nil];
-  expect(result).to.beSupersetOf(expected);
-  expect(expected).to.beSupersetOf(result);
+- (void)testPropertyBasedReject
+{
+  [self rejectTestBase:self.numberTestSet.reject(^BOOL(NSNumber *element) {
+    return [element floatValue] <= 3;
+  })];
 }
 
 @end

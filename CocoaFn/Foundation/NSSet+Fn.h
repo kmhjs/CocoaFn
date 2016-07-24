@@ -12,11 +12,22 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface NSSet<__covariant ObjectType> (Fn)
 
-- (void)each:(void (^)(ObjectType element))fn;
-- (NSSet *)map:(id (^)(ObjectType element))fn;
-- (id)reduce:(id)initial fn:(id (^)(id accumlator, ObjectType element))fn;
-- (NSSet<ObjectType> *)select:(BOOL (^)(ObjectType element))fn;
-- (NSSet<ObjectType> *)reject:(BOOL (^)(ObjectType element))fn;
+typedef void (^SetVoidFnBlock)(ObjectType element);
+typedef id _Nonnull (^SetIdFnBlock)(ObjectType element);
+typedef id _Nonnull (^SetReduceFnBlock)(id accumlator, ObjectType element);
+typedef BOOL (^SetBoolFnBlock)(ObjectType element);
+
+@property (readonly) void (^each)(SetVoidFnBlock fn);
+@property (readonly) NSSet *(^map)(SetIdFnBlock fn);
+@property (readonly) id (^reduce)(id initial, SetReduceFnBlock fn);
+@property (readonly) NSSet<ObjectType> *(^select)(SetBoolFnBlock fn);
+@property (readonly) NSSet<ObjectType> *(^reject)(SetBoolFnBlock fn);
+
+- (void)each:(SetVoidFnBlock)fn;
+- (NSSet *)map:(SetIdFnBlock)fn;
+- (id)reduce:(id)initial fn:(SetReduceFnBlock)fn;
+- (NSSet<ObjectType> *)select:(SetBoolFnBlock)fn;
+- (NSSet<ObjectType> *)reject:(SetBoolFnBlock)fn;
 
 @end
 

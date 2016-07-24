@@ -12,14 +12,14 @@ NS_ASSUME_NONNULL_BEGIN
 
 @implementation NSSet (Fn)
 
-- (void)each:(void (^)(id _Nonnull))fn
+- (void)each:(SetVoidFnBlock)fn
 {
   [self enumerateObjectsUsingBlock:^(id _Nonnull obj, BOOL * _Nonnull stop) {
     fn(obj);
   }];
 }
 
-- (NSSet *)map:(id  _Nonnull (^)(id _Nonnull))fn
+- (NSSet *)map:(SetIdFnBlock)fn
 {
   __block NSMutableSet *set = [NSMutableSet setWithCapacity:0];
 
@@ -30,7 +30,7 @@ NS_ASSUME_NONNULL_BEGIN
   return [set copy];
 }
 
-- (id)reduce:(id)initial fn:(id  _Nonnull (^)(id _Nonnull, id _Nonnull))fn
+- (id)reduce:(id)initial fn:(SetReduceFnBlock)fn
 {
   __block id current = initial;
 
@@ -41,7 +41,7 @@ NS_ASSUME_NONNULL_BEGIN
   return current;
 }
 
-- (NSSet *)select:(BOOL (^)(id _Nonnull))fn
+- (NSSet *)select:(SetBoolFnBlock)fn
 {
   __block NSMutableSet *set = [NSMutableSet setWithCapacity:0];
 
@@ -54,7 +54,7 @@ NS_ASSUME_NONNULL_BEGIN
   return [set copy];
 }
 
-- (NSSet *)reject:(BOOL (^)(id _Nonnull))fn
+- (NSSet *)reject:(SetBoolFnBlock)fn
 {
   return [self select:^BOOL(id  _Nonnull element) {
     return !fn(element);

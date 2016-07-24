@@ -12,14 +12,14 @@ NS_ASSUME_NONNULL_BEGIN
 
 @implementation NSDictionary (Fn)
 
-- (void)each:(void (^)(id key, id value))fn
+- (void)each:(DictionaryVoidFnBlock)fn
 {
   [self enumerateKeysAndObjectsUsingBlock:^(id _Nonnull key, id _Nonnull obj, BOOL * _Nonnull stop) {
     fn(key, obj);
   }];
 }
 
-- (NSDictionary *)map:(id (^)(id key, id value))fn
+- (NSDictionary *)map:(DictionaryIdFnBlock)fn
 {
   __block NSMutableDictionary *dict = [NSMutableDictionary dictionaryWithCapacity:0];
 
@@ -30,7 +30,7 @@ NS_ASSUME_NONNULL_BEGIN
   return [dict copy];
 }
 
-- (id)reduce:(id)initial fn:(id (^)(id, id, id))fn
+- (id)reduce:(id)initial fn:(DictionaryReduceFnBlock)fn
 {
   __block id current = initial;
 
@@ -41,7 +41,7 @@ NS_ASSUME_NONNULL_BEGIN
   return current;
 }
 
-- (NSDictionary *)select:(BOOL (^)(id, id))fn
+- (NSDictionary *)select:(DictionaryBoolFnBlock)fn
 {
   __block NSMutableDictionary *dict = [NSMutableDictionary dictionaryWithCapacity:0];
 
@@ -54,7 +54,7 @@ NS_ASSUME_NONNULL_BEGIN
   return [dict copy];
 }
 
-- (NSDictionary *)reject:(BOOL (^)(id, id))fn
+- (NSDictionary *)reject:(DictionaryBoolFnBlock)fn
 {
   return [self select:^BOOL(id key, id value) {
     return !fn(key, value);
@@ -62,14 +62,6 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 #pragma mark - Property based access
-
-/*
- @property (readonly) void (^each)(DictionaryVoidFnBlock fn);
- @property (readonly) NSDictionary *(^map)(DictionaryIdFnBlock fn);
- @property (readonly) id (^reduce)(id accumlator, DictionaryReduceFnBlock fn);
- @property (readonly) NSDictionary<KeyType, ObjectType> *(^select)(DictionaryBoolFnBlock fn);
- @property (readonly) NSDictionary<KeyType, ObjectType> *(^reject)(DictionaryBoolFnBlock fn);
- */
 
 - (void (^)(DictionaryVoidFnBlock))each
 {

@@ -12,11 +12,22 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface NSDictionary<__covariant KeyType, __covariant ObjectType> (Fn)
 
-- (void)each:(void (^)(KeyType key, ObjectType value))fn;
-- (NSDictionary *)map:(id (^)(KeyType key, ObjectType value))fn;
-- (id)reduce:(id)initial fn:(id (^)(id accumlator, KeyType key, ObjectType value))fn;
-- (NSDictionary<KeyType, ObjectType> *)select:(BOOL (^)(KeyType key, ObjectType value))fn;
-- (NSDictionary<KeyType, ObjectType> *)reject:(BOOL (^)(KeyType key, ObjectType value))fn;
+typedef void (^DictionaryVoidFnBlock)(KeyType key, ObjectType value);
+typedef id _Nonnull (^DictionaryIdFnBlock)(KeyType key, ObjectType value);
+typedef id _Nonnull (^DictionaryReduceFnBlock)(id accumlator, KeyType key, ObjectType value);
+typedef BOOL (^DictionaryBoolFnBlock)(KeyType key, ObjectType value);
+
+@property (readonly) void (^each)(DictionaryVoidFnBlock fn);
+@property (readonly) NSDictionary *(^map)(DictionaryIdFnBlock fn);
+@property (readonly) id (^reduce)(id accumlator, DictionaryReduceFnBlock fn);
+@property (readonly) NSDictionary<KeyType, ObjectType> *(^select)(DictionaryBoolFnBlock fn);
+@property (readonly) NSDictionary<KeyType, ObjectType> *(^reject)(DictionaryBoolFnBlock fn);
+
+- (void)each:(DictionaryVoidFnBlock)fn;
+- (NSDictionary *)map:(DictionaryIdFnBlock)fn;
+- (id)reduce:(id)initial fn:(DictionaryReduceFnBlock)fn;
+- (NSDictionary<KeyType, ObjectType> *)select:(DictionaryBoolFnBlock)fn;
+- (NSDictionary<KeyType, ObjectType> *)reject:(DictionaryBoolFnBlock)fn;
 
 @end
 

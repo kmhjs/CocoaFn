@@ -61,6 +61,50 @@ NS_ASSUME_NONNULL_BEGIN
   }];
 }
 
+#pragma mark - Property based access
+
+/*
+ @property (readonly) void (^each)(DictionaryVoidFnBlock fn);
+ @property (readonly) NSDictionary *(^map)(DictionaryIdFnBlock fn);
+ @property (readonly) id (^reduce)(id accumlator, DictionaryReduceFnBlock fn);
+ @property (readonly) NSDictionary<KeyType, ObjectType> *(^select)(DictionaryBoolFnBlock fn);
+ @property (readonly) NSDictionary<KeyType, ObjectType> *(^reject)(DictionaryBoolFnBlock fn);
+ */
+
+- (void (^)(DictionaryVoidFnBlock))each
+{
+  return ^(DictionaryVoidFnBlock fn) {
+    return [self each:fn];
+  };
+}
+
+- (NSDictionary *(^)(DictionaryIdFnBlock))map {
+  return ^NSDictionary *(DictionaryIdFnBlock fn) {
+    return [self map:fn];
+  };
+}
+
+- (id (^)(id, DictionaryReduceFnBlock))reduce
+{
+  return ^id(id initial, DictionaryReduceFnBlock fn) {
+    return [self reduce:initial fn:fn];
+  };
+}
+
+- (NSDictionary<id, id> *(^)(DictionaryBoolFnBlock))select
+{
+  return ^NSDictionary *(DictionaryBoolFnBlock fn) {
+    return [self select:fn];
+  };
+}
+
+- (NSDictionary<id, id> *(^)(DictionaryBoolFnBlock))reject
+{
+  return ^NSDictionary *(DictionaryBoolFnBlock fn) {
+    return [self reject:fn];
+  };
+}
+
 @end
 
 NS_ASSUME_NONNULL_END

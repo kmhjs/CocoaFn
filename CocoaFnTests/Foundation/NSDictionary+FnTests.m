@@ -41,14 +41,10 @@
   [super tearDown];
 }
 
-- (void)testEach
+#pragma mark - Each
+
+- (void)eachTestBase:(NSDictionary<NSString *, NSNumber *> *)result
 {
-  __block NSMutableDictionary<NSString *, NSNumber *> *result = [NSMutableDictionary dictionaryWithCapacity:0];
-
-  [self.numberTestSet each:^(NSString *key, NSNumber *value) {
-    [result setObject:value forKey:key];
-  }];
-
   /**
    *  Checks content length
    */
@@ -61,12 +57,32 @@
   expect(self.numberTestSet).to.beSupersetOf(result);
 }
 
-- (void)testMap
+- (void)testEach
 {
-  NSDictionary<NSString *, NSString *> *result = [self.numberTestSet map:^NSString *(NSString *key, NSNumber *value) {
-    return [NSString stringWithFormat:@"%@ = %@", key, value];
+  __block NSMutableDictionary<NSString *, NSNumber *> *result = [NSMutableDictionary dictionaryWithCapacity:0];
+
+  [self.numberTestSet each:^(NSString *key, NSNumber *value) {
+    [result setObject:value forKey:key];
   }];
 
+  [self eachTestBase:result];
+}
+
+- (void)testPropertyBasedEach
+{
+  __block NSMutableDictionary<NSString *, NSNumber *> *result = [NSMutableDictionary dictionaryWithCapacity:0];
+
+  self.numberTestSet.each(^(NSString *key, NSNumber *value) {
+    [result setObject:value forKey:key];
+  });
+
+  [self eachTestBase:result];
+}
+
+#pragma mark - Map
+
+- (void)mapTestBase:(NSDictionary<NSString *, NSString *> *)result
+{
   /**
    *  Checks content length
    */
@@ -85,41 +101,111 @@
                                               }];
 }
 
-- (void)testReduceNumber
+- (void)testMap
 {
-  NSNumber *result = [self.numberTestSet reduce:@(0)
-                                             fn:^NSNumber *(NSNumber *accumlator, NSString *key, NSNumber *value) {
-                                               return @([accumlator floatValue] + [value floatValue]);
-                                             }];
+  [self mapTestBase:[self.numberTestSet map:^NSString *(NSString *key, NSNumber *value) {
+    return [NSString stringWithFormat:@"%@ = %@", key, value];
+  }]];
+}
 
+- (void)testPropertyBasedMap
+{
+  [self mapTestBase:self.numberTestSet.map(^NSString *(NSString *key, NSNumber *value) {
+    return [NSString stringWithFormat:@"%@ = %@", key, value];
+  })];
+}
+
+#pragma mark - Reduce
+
+- (void)reduceNumberTestBase:(NSNumber *)result
+{
   /**
    *  Checks content
    */
   expect([result floatValue]).to.equal(6.0);
 }
 
-- (void)testReduceString
+- (void)testReduceNumber
 {
-  NSString *result = [self.stringTestSet reduce:@""
-                                             fn:^NSString *(NSString *accumlator, NSString *key, NSString *value) {
-                                               if (accumlator.length < 1) {
-                                                 return value;
-                                               }
+  [self reduceNumberTestBase:[self.numberTestSet reduce:@(0)
+                                                     fn:^NSNumber *(NSNumber *accumlator, NSString *key, NSNumber *value) {
+                                                       return @([accumlator floatValue] + [value floatValue]);
+                                                     }]];
+}
 
-                                               return [NSString stringWithFormat:@"%@, %@", accumlator, value];
-                                             }];
+- (void)testPropertyBasedReduceNumber
+{
+  [self reduceNumberTestBase:self.numberTestSet.reduce(@(0), ^NSNumber *(NSNumber *accumlator, NSString *key, NSNumber *value) {
+    return @([accumlator floatValue] + [value floatValue]);
+  })];
+}
+
+- (void)reduceStringTestBase:(NSString *)result
+{
   /**
    *  Checks content
    */
   expect(result).to.equal(@"a, b, c");
 }
 
+- (void)testReduceString
+{
+  [self reduceStringTestBase:[self.stringTestSet reduce:@""
+                                                     fn:^NSString *(NSString *accumlator, NSString *key, NSString *value) {
+                                                       if (accumlator.length < 1) {
+                                                         return value;
+                                                       }
+
+                                                       return [NSString stringWithFormat:@"%@, %@", accumlator, value];
+                                                     }]];
+}
+
+- (void)testPropertyBasedReduceString
+{
+  [self reduceStringTestBase:self.stringTestSet.reduce(@"", ^NSString *(NSString *accumlator, NSString *key, NSString *value) {
+    if (accumlator.length < 1) {
+      return value;
+    }
+
+    return [NSString stringWithFormat:@"%@, %@", accumlator, value];
+  })];
+}
+
+#pragma mark - Select
+
+- (void)selectTestBase:(NSDictionary<NSString *, NSString *> *)result
+{
+  /**
+   *  Checks content length
+   *  In this case, @{ @"2" : @"b" } should be in the dictionary
+   */
+  expect([result count]).to.equal(1);
+
+  /**
+   *  Checks contents
+   */
+  expect([result hasKey:@"2"]).to.beTruthy;
+  expect(result[@"2"]).to.equal(@"b");
+}
+
 - (void)testSelect
 {
-  NSDictionary<NSString *, NSString *> *result = [self.stringTestSet select:^BOOL(NSString *key, NSString *value) {
+  [self selectTestBase:[self.stringTestSet select:^BOOL(NSString *key, NSString *value) {
     return [key isEqualToString:@"2"];
-  }];
+  }]];
+}
 
+- (void)testPropertyBasedSelect
+{
+  [self selectTestBase:self.stringTestSet.select(^BOOL(NSString *key, NSString *value) {
+    return [key isEqualToString:@"2"];
+  })];
+}
+
+#pragma mark - Reject
+
+- (void)rejectTestBase:(NSDictionary<NSString *, NSString *> *)result
+{
   /**
    *  Checks content length
    *  In this case, @{ @"2" : @"b" } should be in the dictionary
@@ -135,21 +221,16 @@
 
 - (void)testReject
 {
-  NSDictionary<NSString *, NSString *> *result = [self.stringTestSet reject:^BOOL(NSString *key, NSString *value) {
+  [self rejectTestBase:[self.stringTestSet reject:^BOOL(NSString *key, NSString *value) {
     return ![key isEqualToString:@"2"];
-  }];
+  }]];
+}
 
-  /**
-   *  Checks content length
-   *  In this case, @{ @"2" : @"b" } should be in the dictionary
-   */
-  expect([result count]).to.equal(1);
-
-  /**
-   *  Checks contents
-   */
-  expect([result hasKey:@"2"]).to.beTruthy;
-  expect(result[@"2"]).to.equal(@"b");
+- (void)testPropertyBasedReject
+{
+  [self rejectTestBase:self.stringTestSet.reject(^BOOL(NSString *key, NSString *value) {
+    return ![key isEqualToString:@"2"];
+  })];
 }
 
 @end

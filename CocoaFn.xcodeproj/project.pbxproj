@@ -16,6 +16,9 @@
 		7EE9B9FE1D43CAB300956C9D /* NSDictionary+Fn.m in Sources */ = {isa = PBXBuildFile; fileRef = 7EE9B9FA1D43CAB300956C9D /* NSDictionary+Fn.m */; };
 		7EE9BA021D43CAC300956C9D /* NSArray+FnTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 7EE9BA001D43CAC300956C9D /* NSArray+FnTests.m */; };
 		7EE9BA031D43CAC300956C9D /* NSDictionary+FnTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 7EE9BA011D43CAC300956C9D /* NSDictionary+FnTests.m */; };
+		7EE9BA061D4442C000956C9D /* NSSet+Fn.h in Headers */ = {isa = PBXBuildFile; fileRef = 7EE9BA041D4442C000956C9D /* NSSet+Fn.h */; };
+		7EE9BA071D4442C000956C9D /* NSSet+Fn.m in Sources */ = {isa = PBXBuildFile; fileRef = 7EE9BA051D4442C000956C9D /* NSSet+Fn.m */; };
+		7EE9BA091D44440E00956C9D /* NSSet+FnTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 7EE9BA081D44440E00956C9D /* NSSet+FnTests.m */; };
 		E8C99DA868A0BBBF49476DA4 /* libPods-CocoaFnTests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = CAC6DB48111764A6FE399145 /* libPods-CocoaFnTests.a */; };
 /* End PBXBuildFile section */
 
@@ -44,6 +47,9 @@
 		7EE9B9FA1D43CAB300956C9D /* NSDictionary+Fn.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = "NSDictionary+Fn.m"; path = "Foundation/NSDictionary+Fn.m"; sourceTree = "<group>"; };
 		7EE9BA001D43CAC300956C9D /* NSArray+FnTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = "NSArray+FnTests.m"; path = "Foundation/NSArray+FnTests.m"; sourceTree = "<group>"; };
 		7EE9BA011D43CAC300956C9D /* NSDictionary+FnTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = "NSDictionary+FnTests.m"; path = "Foundation/NSDictionary+FnTests.m"; sourceTree = "<group>"; };
+		7EE9BA041D4442C000956C9D /* NSSet+Fn.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "NSSet+Fn.h"; path = "Foundation/NSSet+Fn.h"; sourceTree = "<group>"; };
+		7EE9BA051D4442C000956C9D /* NSSet+Fn.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = "NSSet+Fn.m"; path = "Foundation/NSSet+Fn.m"; sourceTree = "<group>"; };
+		7EE9BA081D44440E00956C9D /* NSSet+FnTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = "NSSet+FnTests.m"; path = "Foundation/NSSet+FnTests.m"; sourceTree = "<group>"; };
 		C2A6F81C23D7EE735DDB38D4 /* libPods-CocoaFn.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-CocoaFn.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		CAC6DB48111764A6FE399145 /* libPods-CocoaFnTests.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-CocoaFnTests.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		CFE67581729503BDF45A040F /* Pods-CocoaFn.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-CocoaFn.release.xcconfig"; path = "Pods/Target Support Files/Pods-CocoaFn/Pods-CocoaFn.release.xcconfig"; sourceTree = "<group>"; };
@@ -125,6 +131,8 @@
 				7EE9B9F81D43CAB300956C9D /* NSArray+Fn.m */,
 				7EE9B9F91D43CAB300956C9D /* NSDictionary+Fn.h */,
 				7EE9B9FA1D43CAB300956C9D /* NSDictionary+Fn.m */,
+				7EE9BA041D4442C000956C9D /* NSSet+Fn.h */,
+				7EE9BA051D4442C000956C9D /* NSSet+Fn.m */,
 			);
 			name = Foundation;
 			sourceTree = "<group>";
@@ -134,6 +142,7 @@
 			children = (
 				7EE9BA001D43CAC300956C9D /* NSArray+FnTests.m */,
 				7EE9BA011D43CAC300956C9D /* NSDictionary+FnTests.m */,
+				7EE9BA081D44440E00956C9D /* NSSet+FnTests.m */,
 			);
 			name = Foundation;
 			sourceTree = "<group>";
@@ -156,6 +165,7 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				7EE9BA061D4442C000956C9D /* NSSet+Fn.h in Headers */,
 				7EE9B9FD1D43CAB300956C9D /* NSDictionary+Fn.h in Headers */,
 				7EE9B9E01D43C84100956C9D /* CocoaFn.h in Headers */,
 				7EE9B9FB1D43CAB300956C9D /* NSArray+Fn.h in Headers */,
@@ -341,6 +351,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				7EE9BA071D4442C000956C9D /* NSSet+Fn.m in Sources */,
 				7EE9B9FE1D43CAB300956C9D /* NSDictionary+Fn.m in Sources */,
 				7EE9B9FC1D43CAB300956C9D /* NSArray+Fn.m in Sources */,
 			);
@@ -351,6 +362,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				7EE9BA031D43CAC300956C9D /* NSDictionary+FnTests.m in Sources */,
+				7EE9BA091D44440E00956C9D /* NSSet+FnTests.m in Sources */,
 				7EE9BA021D43CAC300956C9D /* NSArray+FnTests.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

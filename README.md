@@ -6,6 +6,7 @@ Collection extensions for Objective-C. (ARC environment)
 
 * [x] `NSArray`
 * [x] `NSDictionary`
+* [x] `NSSet`
 
 ## Requirements
 
